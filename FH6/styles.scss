@@ -1,0 +1,27 @@
+/* $button-background-color: #007bff; 
+$button-color: #ffffff; 
+$button-padding: 10px 20px; 
+
+#submitButton {
+  background-color: $button-background-color;
+  color: $button-color;
+  padding: $button-padding;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+  position: fixed; 
+  bottom: 20px; 
+  right: 20px; 
+}
+
+#submitButton:hover {
+  background-color: darken($button-background-color, 10%);
+}
+
+// Define variable for input border radius
+$input-border-radius: 20px;
+
+// Style for the input field
+#answer {
+  border-radius: $input-border-radius;
+}

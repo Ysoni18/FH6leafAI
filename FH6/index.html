@@ -1,0 +1,103 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>MechAI</title>
+    <link rel="stylesheet" type="text/css" href="styles.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.1.3/dist/css/bootstrap.min.css" integrity="sha384-MCw98/SFnGE8fJT3GXwEOngsV7Zt27NXFoaoApmYm81iuXoPkFOJwJ8ERdknLPMO" crossorigin="anonymous">
+</head>
+<body>
+  <div id="container">
+    <h1>mechAI</h1>
+    <form class="user">
+        <input type="text" class="form-control" aria-label="Sizing example input" aria-describedby="inputGroup-sizing-lg" id="answer" name="answer" placeholder="What do you want"><br><br>
+        <input type="button" id="submitButton" value="Submit">
+    </form>
+  </div>
+    <div id="response"></div> 
+
+    <script type="importmap">
+        {
+            "imports": {
+                "@google/generative-ai": "https://esm.run/@google/generative-ai"
+            }
+        }
+    </script>
+    <script type="module">
+        import { GoogleGenerativeAI } from "@google/generative-ai";
+
+        // Fetch your API_KEY
+        const API_KEY = "AIzaSyBT4UAwDlLLBg5aC3SKf-hp65PL8r5V21Y";
+
+        // Access your API key (see "Set up your API key" above)
+        const genAI = new GoogleGenerativeAI(API_KEY);
+
+        async function run() {
+            const model = genAI.getGenerativeModel({ model: "gemini-1.0-pro" });
+            const chat = model.startChat({
+            history: [
+      {
+        role: "user",
+        parts: [{ text: "Hello, I have 2 dogs in my house. One is a Labrador and one is a poodle." }],
+      },
+      {
+        role: "model",
+        parts: [{ text: "Great to meet you. What would you like to know?" }],
+      },
+    ],
+    generationConfig: {
+      maxOutputTokens: 100,
+    },
+  });
+            const input = document.getElementById("answer").value;
+
+            const result = await model.generateContent(input);
+            const response = await result.response;
+            const text = await response.text();
+
+            // Display response with typing effect
+            typingEffect(text);
+        }
+
+        // Function to simulate typing effect
+        async function typingEffect(text) {
+    const responseElement = document.getElementById("response");
+    responseElement.innerHTML = ""; // Clear previous content
+
+    let typedText = ""; // Initialize an empty string to store typed text
+
+    // Iterate through each character in the text
+    for (let i = 0; i < text.length; i++) {
+        // Append the current character to the typed text
+        typedText += text[i];
+        // Update the response element with the typed text
+        responseElement.innerText = typedText;
+
+        // Check if the current character is a space or if it's the last character in a word
+        if (text[i] === " " || i === text.length - 1) {
+            // If it's a space or the last character in a word, add a slight delay to simulate typing speed
+            await delay(50); // Adjust delay as needed
+        }
+    }
+}
+
+// Function to introduce delay
+function delay(ms) {
+    return new Promise(resolve => setTimeout(resolve, ms));
+}
+
+        // Function to run the chat when Enter key is pressed
+        function handleEnter(event) {
+            if (event.keyCode === 13) { // Check if Enter key is pressed
+                event.preventDefault(); // Prevent default form submission
+                run(); // Call the run function
+            }
+        }
+
+        document.getElementById("submitButton").addEventListener("click", run);
+        document.getElementById("answer").addEventListener("keydown", handleEnter); // Add event listener to input field
+    </script>
+    <script src="https://code.jquery.com/jquery-3.3.1.slim.min.js" integrity="sha384-q8i/X+965DzO0rT7abK41JStQIAqVgRVzpbzo5smXKp4YfRvH+8abtTE1Pi6jizo" crossorigin="anonymous"></script>
+    <script src="https://cdn.jsdelivr.net/npm/popper.js@1.14.3/dist/umd/popper.min.js" integrity="sha384-ZMP7rVo3mIykV+2+9J3UJ46jBk0WLaUAdn689aCwoqbBJiSnjAK/l8WvCWPIPm49" crossorigin="anonymous"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@4.1.3/dist/js/bootstrap.min.js" integrity="sha384-ChfqqxuZUCnJSK3+MXmPNIyE6ZbWh2IMqE241rYiqJxyMiZ6OW/JmZQ5stwEULTy" crossorigin="anonymous"></script>
+</body>
+</html>
