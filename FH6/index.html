@@ -20,6 +20,32 @@
 
   <div id="response"></div> 
 
+  <button type="button" class="btn btn-primary" id="questionButton">Answer Questions</button>
+
+  <div class="modal fade" id="questionModal" tabindex="-1" role="dialog" aria-labelledby="questionModalLabel" aria-hidden="true">
+    <div class="modal-dialog" role="document">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title" id="questionModalLabel">Question</h5>
+          <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+            <span aria-hidden="true">&times;</span>
+          </button>
+        </div>
+        <div class="modal-body">
+          <p id="questionText"></p>
+          <div id="answerOptions"></div>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+          <button type="button" class="btn btn-primary" id="submitQuestion">Submit</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div><span id="totalPoints">0</span></div>
+  <div id="pointWord">Total Points:</div>
+
   <script type="importmap">
     {
       "imports": {
@@ -30,9 +56,35 @@
   <script type="module">
     import { GoogleGenerativeAI } from "@google/generative-ai";
 
-    const API_KEY = "AIzaSyBT4UAwDlLLBg5aC3SKf-hp65PL8r5V21Y"; // Replace "YOUR_API_KEY" with your actual API key
+    const API_KEY = "YOUR_API_KEY"; // Replace "YOUR_API_KEY" with your actual API key
 
     const genAI = new GoogleGenerativeAI(API_KEY);
+
+    let totalPoints = 0; 
+    let currentQuestionIndex = 0; 
+
+    const questions = [
+      {
+        question: "What is not a factor of pollution?",
+        options: [
+          { text: "A. Transportation", value: "A" },
+          { text: "B. Industrial Activities", value: "B" },
+          { text: "C. Renewable Energy", value: "C" },
+          { text: "D. Power plants", value: "D" }
+        ],
+        correctAnswer: "C"
+      },
+      {
+        question: "How much warmer is the current global ocean temperature from the 20th-century average?",
+        options: [
+          { text: "A. 1.06 Degrees Celsius", value: "A" },
+          { text: "B. 2.06 Degrees Celsius", value: "B" },
+          { text: "C. 0.5 Degrees Celsius", value: "C" },
+          { text: "D. 0.9 Degrees Celsius", value: "D" }
+        ],
+        correctAnswer: "A"
+      }
+    ];
 
     async function run() {
       const model = genAI.getGenerativeModel({ model: "gemini-1.0-pro" });
@@ -45,7 +97,7 @@
           },
           {
             role: "model",
-            parts: [{ text: "I am leafAI, an AI based off Gemini that can help with your enviornmental needs." }],
+            parts: [{ text: "I am leafAI, an AI based off Gemini that can help with your environmental needs." }],
           },
           {
             role: "user",
@@ -53,7 +105,7 @@
           },
           {
             role: "model",
-            parts: [{ text: "You are correct. I am leafAI, an AI based off Gemini that can help with any enviornmental questions that you may have." }],
+            parts: [{ text: "You are correct. I am leafAI, an AI based off Gemini that can help with any environmental questions that you may have." }],
           },
           {
             role: "user",
@@ -61,7 +113,7 @@
           },
           {
             role: "model",
-            parts: [{ text: "I can help you with any enviornmental questions that you may have." }],
+            parts: [{ text: "I can help you with any environmental questions that you may have." }],
           },
         ],
         generationConfig: {
@@ -88,7 +140,6 @@
         typedText += text[i];
         responseElement.innerText = typedText;
 
-        // Check if the responseElement height exceeds the screen height
         if (responseElement.offsetHeight > window.innerHeight) {
           window.scrollTo(0, document.body.scrollHeight);
         }
@@ -111,7 +162,85 @@
     }
 
     document.getElementById("submitButton").addEventListener("click", run);
-    document.getElementById("answer").addEventListener("keydown", handleEnter); // Add event listener to input field
+    document.getElementById("answer").addEventListener("keydown", handleEnter); 
+
+    function submitQuestion() {
+      const selectedOption = document.querySelector('input[name="answerOptions"]:checked');
+      if (!selectedOption) {
+        alert("Please select an answer.");
+        return;
+      }
+
+      const answer = selectedOption.value;
+
+      if (answer === questions[currentQuestionIndex].correctAnswer) {
+        totalPoints++;
+        alert("Correct! You earned 1 point.");
+
+        
+        document.getElementById("totalPoints").innerText = totalPoints;
+
+        
+        currentQuestionIndex++;
+
+    
+        if (currentQuestionIndex < questions.length) {
+          
+          displayQuestion(questions[currentQuestionIndex]);
+        } else {
+          
+          alert("You have completed all questions!");
+        }
+      } else {
+        alert("Incorrect. Try again!");
+      }
+
+      
+      selectedOption.checked = false;
+
+      
+      $('#questionModal').modal('hide');
+    }
+
+    
+    document.getElementById("submitQuestion").addEventListener("click", submitQuestion);
+
+    
+    document.getElementById("questionButton").addEventListener("click", function() {
+      
+      displayQuestion(questions[currentQuestionIndex]);
+    });
+
+    
+    function displayQuestion(questionObj) {
+      document.getElementById("questionText").textContent = questionObj.question;
+
+      const answerOptionsDiv = document.getElementById("answerOptions");
+      answerOptionsDiv.innerHTML = ""; 
+      
+      questionObj.options.forEach(option => {
+        const input = document.createElement("input");
+        input.type = "radio";
+        input.name = "answerOptions";
+        input.value = option.value;
+        input.classList.add("form-check-input");
+
+        const label = document.createElement("label");
+        label.classList.add("form-check-label");
+        label.textContent = option.text;
+        label.setAttribute("for", "answerOption" + option.value);
+
+        const div = document.createElement("div");
+        div.classList.add("form-check");
+        div.appendChild(input);
+        div.appendChild(label);
+
+        answerOptionsDiv.appendChild(div);
+      });
+
+      
+      $('#questionModal').modal('show');
+    }
   </script>
   <script src="https://code.jquery.com/jquery-3.3.1.slim.min.js" integrity="sha384-q8i/X+965DzO0rT7abK41JStQIAqVgRVzpbzo5smXKp4YfRvH+8abtTE1Pi6jizo" crossorigin="anonymous"></script>
   <script src="https://cdn.jsdelivr.net/npm/popper.js@1.14.3/dist/umd/popper.min.js" integrity="sha384-ZMP7rVo3mIykV+2+9J3UJ46jBk0WLaUAdn689aCwoqbBJiSnjAK/l8WvCWPIPm49" crossorigin="anonymous"></script>
