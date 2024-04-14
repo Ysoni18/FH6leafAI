@@ -52,4 +52,22 @@ body {
   left: 0;
 }
 
+#questionButton {
+  position: absolute;
+  top: 0;
+  right: 0;
+}
+
+#totalPoints {
+  position: absolute;
+  top: 3%;
+  right: 17%;
+}
+
+#pointWord {
+  position: absolute;
+  top: 20px;
+  right: 250px;
+}
+
 /*# sourceMappingURL=styles.css.map */
